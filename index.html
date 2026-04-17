@@ -2,29 +2,17 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>櫻坂46 グッズ管理</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-/* ===== ベース ===== */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   background: #f4f4f8;
-  color: #222;
   padding-bottom: 40px;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* ===== ヘッダー ===== */
 h2 {
   margin: 0;
   padding: 16px;
@@ -33,11 +21,9 @@ h2 {
   color: white;
   position: sticky;
   top: 0;
-  z-index: 100;
-  font-size: 18px;
 }
 
-/* ===== 入力 ===== */
+/* 入力 */
 input, select {
   width: 100%;
   padding: 12px;
@@ -45,12 +31,11 @@ input, select {
   border-radius: 12px;
   border: 1px solid #ddd;
   box-sizing: border-box;
-  background: white;
 }
 
-/* ===== ボタン ===== */
+/* ボタン */
 button {
-  width: 60%;
+  width: 100%;
   padding: 12px;
   margin-top: 6px;
   border: none;
@@ -60,7 +45,17 @@ button {
   font-weight: bold;
 }
 
-/* ===== カード ===== */
+/* フィルター */
+.filter-box, .stats {
+  margin: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  white-space: pre-line;
+}
+
+/* カード */
 li {
   list-style: none;
   margin: 10px;
@@ -68,52 +63,16 @@ li {
   background: white;
   border-radius: 16px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  transition: 0.2s;
 }
 
-li:active {
-  transform: scale(0.98);
-}
-
-/* ===== フィルター ===== */
-.filter-box {
-  margin: 10px;
-  padding: 10px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-/* ===== ステータス ===== */
-.stats {
-  margin: 10px;
-  padding: 10px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  white-space: pre-line;
-  font-size: 14px;
-}
-
-/* ===== メンバー ===== */
 .member {
   font-weight: bold;
   color: #6f42c1;
-  margin-bottom: 4px;
 }
 
-/* ===== 状態 ===== */
-.owned {
-  color: #1aa34a;
-  font-weight: bold;
-}
+.owned { color: #1aa34a; font-weight: bold; }
+.not-owned { color: #d93025; font-weight: bold; }
 
-.not-owned {
-  color: #d93025;
-  font-weight: bold;
-}
-
-/* ===== 画像 ===== */
 img {
   width: 100%;
   margin-top: 8px;
@@ -126,32 +85,20 @@ img {
 
 <h2>🌸 櫻坂46 グッズ管理</h2>
 
-<!-- 入力 -->
 <input type="text" id="itemName" placeholder="グッズ名">
+
+<select id="genFilter" onchange="changeGen()">
+  <option value="">全期</option>
+  <option value="2期">2期</option>
+  <option value="3期">3期</option>
+  <option value="4期">4期</option>
+</select>
 
 <select id="member"></select>
 
 <input type="file" id="imageInput" accept="image/*">
 
 <button onclick="addItem()">追加</button>
-
-<!-- フィルター -->
-<div class="filter-box">
-  <h3>🔍 フィルター</h3>
-
-  <select id="filterMember" onchange="render()"></select>
-
-  <select id="filterStatus" onchange="render()">
-    <option value="">すべて</option>
-    <option value="owned">所持</option>
-    <option value="not">未所持</option>
-  </select>
-
-  <select id="sortMode" onchange="render()">
-    <option value="kana">五十音順</option>
-    <option value="gen">期別</option>
-  </select>
-</div>
 
 <div class="stats" id="stats"></div>
 
@@ -173,15 +120,8 @@ const members = [
   { name: "増本綺良", kana: "ますもときら", gen: "2期" },
   { name: "松田里奈", kana: "まつだりな", gen: "2期" },
 
-  { name: "小島凪紗", kana: "こじまなぎさ", gen: "3期" },
-  { name: "谷口愛季", kana: "たにぐちあいり", gen: "3期" },
-  { name: "中嶋優月", kana: "なかじまゆづき", gen: "3期" },
-  { name: "村井優", kana: "むらいゆう", gen: "3期" },
-  { name: "的野美青", kana: "まとのみお", gen: "3期" },
-  { name: "向井純葉", kana: "むかいいとは", gen: "3期" },
   { name: "石森璃花", kana: "いしもりりか", gen: "3期" },
   { name: "遠藤理子", kana: "えんどうりこ", gen: "3期" },
-  { name: "小田倉麗奈", kana: "おだくられいな", gen: "3期" },
   { name: "村山美羽", kana: "むらやまみう", gen: "3期" },
   { name: "山下瞳月", kana: "やましたしづき", gen: "3期" },
 
@@ -200,22 +140,39 @@ members.sort((a,b)=>a.kana.localeCompare(b.kana,"ja"));
 
 /* ===== データ ===== */
 let items = JSON.parse(localStorage.getItem("goods")) || [];
+let currentGen = "";
 
-/* ===== セレクト ===== */
+/* ===== 初期化 ===== */
 function setup(){
-  const m=document.getElementById("member");
-  const f=document.getElementById("filterMember");
-
-  members.forEach(x=>{
-    m.innerHTML+=`<option>${x.name}</option>`;
-    f.innerHTML+=`<option>${x.name}</option>`;
-  });
+  updateMemberList();
 }
 setup();
 
+/* ===== 期別変更 ===== */
+function changeGen(){
+  currentGen = document.getElementById("genFilter").value;
+  updateMemberList();
+}
+
+/* ===== メンバーリスト更新（ここが重要） ===== */
+function updateMemberList(){
+  const m = document.getElementById("member");
+  m.innerHTML = "";
+
+  let filtered = members;
+
+  if(currentGen){
+    filtered = members.filter(x => x.gen === currentGen);
+  }
+
+  filtered.forEach(x=>{
+    m.innerHTML += `<option>${x.name}</option>`;
+  });
+}
+
 /* ===== 保存 ===== */
 function save(){
-  localStorage.setItem("goods",JSON.stringify(items));
+  localStorage.setItem("goods", JSON.stringify(items));
 }
 
 /* ===== 表示 ===== */
@@ -224,60 +181,36 @@ function render(){
   const stats=document.getElementById("stats");
   list.innerHTML="";
 
-  const fm=document.getElementById("filterMember").value;
-  const fs=document.getElementById("filterStatus").value;
-  const sm=document.getElementById("sortMode").value;
+  let data = items;
 
-  let data=items.filter(i=>{
-    if(fm&&i.member!==fm) return false;
-    if(fs==="owned"&&!i.owned) return false;
-    if(fs==="not"&&i.owned) return false;
-    return true;
-  });
-
-  data.sort((a,b)=>{
-    const ma=members.find(m=>m.name===a.member);
-    const mb=members.find(m=>m.name===b.member);
-    if(!ma||!mb) return 0;
-
-    if(sm==="kana") return ma.kana.localeCompare(mb.kana,"ja");
-    if(sm==="gen"){
-      if(ma.gen!==mb.gen) return ma.gen.localeCompare(mb.gen);
-      return ma.kana.localeCompare(mb.kana,"ja");
-    }
-  });
+  if(currentGen){
+    data = items.filter(i=>{
+      const m = members.find(x=>x.name===i.member);
+      return m?.gen === currentGen;
+    });
+  }
 
   let total=data.length;
   let owned=data.filter(i=>i.owned).length;
   let percent=total?Math.round(owned/total*100):0;
 
-  let text=`全体：${owned}/${total}（${percent}%）\n`;
-
-  let mp={};
-  data.forEach(i=>{
-    let m=i.member||"未設定";
-    if(!mp[m]) mp[m]={t:0,o:0};
-    mp[m].t++;
-    if(i.owned) mp[m].o++;
-  });
-
-  for(let m in mp){
-    text+=`${m}：${mp[m].o}/${mp[m].t}（${Math.round(mp[m].o/mp[m].t*100)}%）\n`;
-  }
-
-  stats.textContent=text;
+  stats.textContent = `所持：${owned}/${total}（${percent}%）`;
 
   data.forEach((i,idx)=>{
-    const mm=members.find(m=>m.name===i.member);
-
     const li=document.createElement("li");
+
+    li.onclick = () => {
+      items[idx].owned = !items[idx].owned;
+      save();
+      render();
+    };
+
     li.innerHTML=`
-      <div class="member">${i.member||"未設定"}（${mm?.gen||""}）</div>
+      <div class="member">${i.member}</div>
       <div class="${i.owned?'owned':'not-owned'}">${i.name}</div>
       ${i.image?`<img src="${i.image}">`:''}
-      <button onclick="toggle(${idx})">切替</button>
-      <button onclick="removeItem(${idx})">削除</button>
     `;
+
     list.appendChild(li);
   });
 }
@@ -288,9 +221,21 @@ function addItem(){
   const member=document.getElementById("member").value;
   const file=document.getElementById("imageInput").files[0];
 
+  if(!name){
+    alert("グッズ名を入力してね");
+    return;
+  }
+
   const push=(img)=>{
-    items.push({name,member,owned:false,image:img||null});
-    save();render();
+    items.push({
+      name,
+      member,
+      owned:false,
+      image: img || null
+    });
+
+    save();
+    render();
   };
 
   if(file){
@@ -300,11 +245,8 @@ function addItem(){
   }else push(null);
 }
 
-/* ===== 操作 ===== */
-function toggle(i){items[i].owned=!items[i].owned;save();render();}
-function removeItem(i){items.splice(i,1);save();render();}
-
 render();
+
 </script>
 
 </body>
