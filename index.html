@@ -3,246 +3,416 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>櫻坂46 グッズ管理</title>
+<title>生写真コレクション</title>
 
 <style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  margin: 0;
-  background: #f4f4f8;
-  padding-bottom: 40px;
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont;
+  background:#f4f4f8;
+  padding-bottom:70px;
 }
 
-h2 {
-  margin: 0;
-  padding: 16px;
-  text-align: center;
-  background: #d63384;
-  color: white;
-  position: sticky;
-  top: 0;
+/* ===== アプリヘッダー ===== */
+.app-header{
+  text-align:center;
+  padding:18px 0 8px;
 }
-
-/* 入力 */
-input, select {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
+.app-icon{
+  width:70px;height:70px;
+  margin:auto;
+  border-radius:18px;
+  background:linear-gradient(135deg,#111827,#374151);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  color:white;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
+.app-title{font-size:18px;font-weight:700;margin-top:8px;}
+.app-sub{font-size:12px;color:#6b7280}
 
-/* ボタン */
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 6px;
-  border: none;
-  border-radius: 12px;
-  background: #d63384;
-  color: white;
-  font-weight: bold;
+/* ===== 上ボタン ===== */
+.topbar{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  overflow-x:auto;
 }
+.chip{
+  flex:0 0 auto;
+  padding:10px 14px;
+  border-radius:999px;
+  border:none;
+  background:white;
+  font-weight:600;
+  font-size:13px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.chip:active{transform:scale(0.95)}
+.chip.active{background:#111827;color:white}
 
-/* フィルター */
-.filter-box, .stats {
-  margin: 10px;
-  padding: 10px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  white-space: pre-line;
+/* ===== グリッド ===== */
+#grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  padding:10px;
 }
 
 /* カード */
-li {
-  list-style: none;
-  margin: 10px;
-  padding: 12px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+.card{
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  user-select:none;
 }
 
-.member {
-  font-weight: bold;
-  color: #6f42c1;
+/* 画像 */
+.thumb{
+  width:100%;
+  height:110px;
+  object-fit:cover;
+}
+.thumb.empty{
+  height:110px;
+  background:#e5e7eb;
 }
 
-.owned { color: #1aa34a; font-weight: bold; }
-.not-owned { color: #d93025; font-weight: bold; }
-
-img {
-  width: 100%;
-  margin-top: 8px;
-  border-radius: 12px;
+/* 名前 */
+.name{
+  font-size:11px;
+  text-align:center;
+  padding:6px;
 }
+
+/* コンプリート */
+.overlay{
+  position:absolute;
+  top:6px;
+  right:6px;
+  background:rgba(0,0,0,0.6);
+  color:white;
+  font-size:11px;
+  padding:3px 6px;
+  border-radius:999px;
+}
+
+/* ===== 所持ボタン ===== */
+.items{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:4px;
+  padding:6px;
+}
+
+.item{
+  font-size:10px;
+  text-align:center;
+  padding:6px 0;
+  border-radius:8px;
+  background:#f3f4f6;
+  color:#6b7280;
+  transition:0.15s;
+}
+
+.item.on{
+  background:#111827;
+  color:white;
+}
+
+.item:active{
+  transform:scale(0.95);
+}
+
+/* ===== 下タブ ===== */
+.tabbar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:64px;
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(20px);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid rgba(0,0,0,0.08);
+}
+
+.tab{
+  text-align:center;
+  font-size:11px;
+  color:#6b7280;
+  flex:1;
+}
+.tab span{display:block;font-size:10px;margin-top:2px}
+.tab.active{color:#111827;transform:scale(1.05)}
+.tab:active{transform:scale(0.92)}
 </style>
 </head>
 
 <body>
 
-<h2>🌸 櫻坂46 グッズ管理</h2>
+<!-- ヘッダー -->
+<div class="app-header">
+  <div class="app-icon">📸</div>
+  <div class="app-title">生写真コレクション</div>
+  <div class="app-sub">長押しで画像登録・タップで管理</div>
+</div>
 
-<input type="text" id="itemName" placeholder="グッズ名">
+<!-- モード -->
+<div class="topbar">
+  <button class="chip" onclick="setMode('all')">📦 全部</button>
+  <button class="chip" onclick="setMode('unowned')">🔍 未所持</button>
+  <button class="chip" onclick="setMode('complete')">🏆 コンプ</button>
+</div>
 
-<select id="genFilter" onchange="changeGen()">
-  <option value="">全期</option>
-  <option value="2期">2期</option>
-  <option value="3期">3期</option>
-  <option value="4期">4期</option>
-</select>
+<input type="file" id="fileInput" accept="image/*" style="display:none">
 
-<select id="member"></select>
+<div id="grid"></div>
 
-<input type="file" id="imageInput" accept="image/*">
-
-<button onclick="addItem()">追加</button>
-
-<div class="stats" id="stats"></div>
-
-<ul id="list"></ul>
+<!-- 下タブ -->
+<div class="tabbar">
+  <div class="tab active" onclick="setMode('all')">📷<span>すべて</span></div>
+  <div class="tab" onclick="setMode('unowned')">🔍<span>未所持</span></div>
+  <div class="tab" onclick="setMode('complete')">🏆<span>コンプ</span></div>
+</div>
 
 <script>
 
-/* ===== メンバー ===== */
-const members = [
-  { name: "山﨑天", kana: "やまさきてん", gen: "2期" },
-  { name: "森田ひかる", kana: "もりたひかる", gen: "2期" },
-  { name: "藤吉夏鈴", kana: "ふじよしかりん", gen: "2期" },
-  { name: "田村保乃", kana: "たむらほの", gen: "2期" },
-  { name: "守屋麗奈", kana: "もりやれな", gen: "2期" },
-  { name: "大園玲", kana: "おおぞのれい", gen: "2期" },
-  { name: "遠藤光莉", kana: "えんどうひかり", gen: "2期" },
-  { name: "大沼晶保", kana: "おおぬまあきほ", gen: "2期" },
-  { name: "幸坂茉里乃", kana: "こうさかまりの", gen: "2期" },
-  { name: "増本綺良", kana: "ますもときら", gen: "2期" },
-  { name: "松田里奈", kana: "まつだりな", gen: "2期" },
-
-  { name: "石森璃花", kana: "いしもりりか", gen: "3期" },
-  { name: "遠藤理子", kana: "えんどうりこ", gen: "3期" },
-  { name: "村山美羽", kana: "むらやまみう", gen: "3期" },
-  { name: "山下瞳月", kana: "やましたしづき", gen: "3期" },
-
-  { name: "浅井恋乃未", kana: "あさいこのみ", gen: "4期" },
-  { name: "稲熊ひな", kana: "いなぐまひな", gen: "4期" },
-  { name: "勝又春", kana: "かつまたはる", gen: "4期" },
-  { name: "佐藤愛桜", kana: "さとうねお", gen: "4期" },
-  { name: "中川智尋", kana: "なかがわちひろ", gen: "4期" },
-  { name: "松本和子", kana: "まつもとわこ", gen: "4期" },
-  { name: "目黒陽色", kana: "めぐろひいろ", gen: "4期" },
-  { name: "山川宇衣", kana: "やまかわうい", gen: "4期" },
-  { name: "山田桃実", kana: "やまだももみ", gen: "4期" }
+/* ===== データ ===== */
+const seriesList = [
+"5thシングル『桜月』封入",
+"「夏の近道」MV衣装",
+"「夏の近道」MV制服",
+"「BAN」MV衣装",
+"2023年 冬私服コーデ",
+"三期生ブックレット衣装",
+"スーツコーデ",
+"カラーコーデ",
+"6thシングル『Start over!』封入",
+"「3rd TOUR 2023」オープニング衣装",
+"大正浪漫衣装",
+"「Start over!」ジャケット衣装",
+"「Start over!」MV衣装",
+"「静寂の暴力」MV衣装",
+"サマーワンピース",
+"デニムコーデ",
+"2023年 ハロウィン衣装",
+"7thシングル『承認欲求』封入",
+"2023年 サンタ",
+"「3rd TOUR 2023」白スーツ衣装",
+"2023年 夏フェス",
+"「Nobody’s fault」MV衣装",
+"2023年 読書コーデ",
+"2024年 振袖衣装",
+"「承認欲求」ジャケット衣装",
+"「承認欲求」MV衣装",
+"「マモリビト」MV衣装",
+"「3rd Single BACKS LIVE!!」衣装",
+"おうちコーデ",
+"ジャンプスーツ",
+"8thシングル『何歳の頃に戻りたいのか？』封入",
+"「3rd TOUR 2023」ピンク衣装",
+"「3rd YEAR ANNIVERSARY LIVE」ライブ衣装",
+"「何歳の頃に戻りたいのか？」ジャケット衣装",
+"2024年 春私服コーデ",
+"「何歳の頃に戻りたいのか？」MV衣装",
+"「何度 LOVE SONGの歌詞を読み返しただろう」MV衣装",
+"「小林由依 卒業コンサート」ライブ衣装",
+"カラーデニム",
+"2024年 浴衣",
+"「小林由依 卒業コンサート」赤衣装",
+"「3rd TOUR 2023」ライブ衣装",
+"【会場予約特典】東京ドーム限定メンバー生写真（チュウ）",
+"東京ドーム完売御礼記念!!ライブ会場撮りおろしプレミアム生写真（ウエスト）",
+"9thシングル『自業自得』封入",
+"麦わら帽子コーデ",
+"2023年 年末歌唱衣装",
+"「自業自得」ジャケット衣装",
+"「自業自得」MV衣装",
+"「引きこもる時間はない」MV衣装",
+"「4th ARENA TOUR 2024」ライブ衣装",
+"ワイシャツコーデ",
+"2024年 ハロウィン",
+"カラーニットコーデ",
+"10thシングル『I want tomorrow to come』封入",
+"2024年 サンタ",
+"「3rd YEAR ANNIVERSARY LIVE」ライブ衣装",
+"「4th ARENA TOUR IN 東京ドーム」オープニング衣装",
+"どうぶつ着ぐるみ",
+"マフラーコーデ",
+"「I want tomorrow to come」ジャケット衣装",
+"「I want tomorrow to come」MV衣装",
+"「本質的なこと」MV衣装",
+"福袋2025「4th ARENA TOUR IN 東京ドーム」オープニング衣装　新カット",
+"2025年 振袖",
+"2023年 年末衣装",
+"いぬみみコーデ",
+"11thシングル『UDAGAWA GENERATION』封入",
+"「UDAGAWA GENERATION」ジャケット衣装",
+"「UDAGAWA GENERATION」MV衣装",
+"「Nightmare症候群」MV衣装",
+"2024年 夏フェス衣装",
+"モードコーデ",
+"「4th ARENA TOUR」オープニング衣装",
+"冬私服コーデ",
+"「4th YEAR ANNIVERSARY LIVE」ライブ衣装",
+"「4th ARENA TOUR」ライブ衣装",
+"ネクタイコーデ",
+"2ndアルバム『Addiction』",
+"「Addiction」MV衣装",
+"「三期生ライブ」オープニング衣装",
+"レザージャケットコーデ",
+"12thシングル『Make or Break』封入",
+"2025年 浴衣",
+"「4th ARENA TOUR IN 東京ドーム」ライブ衣装",
+"2024年 夏フェス衣装",
+"ポロシャツコーデ",
+"クラシックコーデ",
+"「Make or Break」ジャケット衣装",
+"「Make or Break」MV衣装",
+"「5th TOUR 2025 “Addiction”」ライブ衣装",
+"「三期生ライブ」衣装",
+"チェックコーデ",
+"パイレーツ衣装",
+"「5th TOUR 2025 “Addiction”」黒衣装",
+"13th Single『Unhappy birthday構文』封入",
+"「Unhappy birthday構文」ジャケット衣装",
+"「Unhappy birthday構文」MV衣装",
+"冬服",
+"2025年 サンタ",
+"福袋2026 2025年に発売したMV衣装生写真のアザーカット",
+"2026年 振袖",
+"スタイリング制服",
+"2026年 バレンタインコーデ",
+"ジャージ",
+"スタジャンコーデ",
+"5th TOUR 2025 “Addiction” ドーム衣装」シルバー衣装",
+"14th Single『The growing up train』封入",
+"5th Anniversaryドレス",
+"「4th YEAR ANNIVERSARY LIVE」オープニング衣装",
+"5th TOUR 2025 “Addiction” 」オープニング衣装",
+"ルームウェア",
 ];
 
-members.sort((a,b)=>a.kana.localeCompare(b.kana,"ja"));
+let data = JSON.parse(localStorage.getItem("photo_app_v4")) || {};
+let mode = "all";
+let selectedSeries = null;
+let pressTimer = null;
 
-/* ===== データ ===== */
-let items = JSON.parse(localStorage.getItem("goods")) || [];
-let currentGen = "";
-
-/* ===== 初期化 ===== */
-function setup(){
-  updateMemberList();
-}
-setup();
-
-/* ===== 期別変更 ===== */
-function changeGen(){
-  currentGen = document.getElementById("genFilter").value;
-  updateMemberList();
-}
-
-/* ===== メンバーリスト更新（ここが重要） ===== */
-function updateMemberList(){
-  const m = document.getElementById("member");
-  m.innerHTML = "";
-
-  let filtered = members;
-
-  if(currentGen){
-    filtered = members.filter(x => x.gen === currentGen);
-  }
-
-  filtered.forEach(x=>{
-    m.innerHTML += `<option>${x.name}</option>`;
-  });
-}
-
-/* ===== 保存 ===== */
-function save(){
-  localStorage.setItem("goods", JSON.stringify(items));
-}
-
-/* ===== 表示 ===== */
-function render(){
-  const list=document.getElementById("list");
-  const stats=document.getElementById("stats");
-  list.innerHTML="";
-
-  let data = items;
-
-  if(currentGen){
-    data = items.filter(i=>{
-      const m = members.find(x=>x.name===i.member);
-      return m?.gen === currentGen;
-    });
-  }
-
-  let total=data.length;
-  let owned=data.filter(i=>i.owned).length;
-  let percent=total?Math.round(owned/total*100):0;
-
-  stats.textContent = `所持：${owned}/${total}（${percent}%）`;
-
-  data.forEach((i,idx)=>{
-    const li=document.createElement("li");
-
-    li.onclick = () => {
-      items[idx].owned = !items[idx].owned;
-      save();
-      render();
+/* 初期化 */
+seriesList.forEach(s=>{
+  if(!data[s]){
+    data[s] = {
+      image:"",
+      items:{ヨリ:false,チュウ:false,ヒキ:false,座り:false}
     };
+  }
+});
 
-    li.innerHTML=`
-      <div class="member">${i.member}</div>
-      <div class="${i.owned?'owned':'not-owned'}">${i.name}</div>
-      ${i.image?`<img src="${i.image}">`:''}
-    `;
-
-    list.appendChild(li);
-  });
+function save(){
+  localStorage.setItem("photo_app_v4",JSON.stringify(data));
 }
 
-/* ===== 追加 ===== */
-function addItem(){
-  const name=document.getElementById("itemName").value;
-  const member=document.getElementById("member").value;
-  const file=document.getElementById("imageInput").files[0];
+/* ===== モード ===== */
+function setMode(m){
+  mode = m;
 
-  if(!name){
-    alert("グッズ名を入力してね");
-    return;
+  document.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+
+  if(m==="all"){
+    document.querySelectorAll(".chip")[0].classList.add("active");
+    document.querySelectorAll(".tab")[0].classList.add("active");
+  }
+  if(m==="unowned"){
+    document.querySelectorAll(".chip")[1].classList.add("active");
+    document.querySelectorAll(".tab")[1].classList.add("active");
+  }
+  if(m==="complete"){
+    document.querySelectorAll(".chip")[2].classList.add("active");
+    document.querySelectorAll(".tab")[2].classList.add("active");
   }
 
-  const push=(img)=>{
-    items.push({
-      name,
-      member,
-      owned:false,
-      image: img || null
-    });
+  render();
+}
 
+/* ===== 画像登録（長押し） ===== */
+document.getElementById("fileInput").onchange = (e)=>{
+  const file = e.target.files[0];
+  if(!file || !selectedSeries) return;
+
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    data[selectedSeries].image = reader.result;
     save();
     render();
   };
+  reader.readAsDataURL(file);
+};
 
-  if(file){
-    const r=new FileReader();
-    r.onload=e=>push(e.target.result);
-    r.readAsDataURL(file);
-  }else push(null);
+/* ===== 所持ボタン ===== */
+function itemButton(type, state){
+  return `<div class="item ${state?'on':''}" data-type="${type}">${type}</div>`;
+}
+
+/* ===== 描画 ===== */
+function render(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  Object.entries(data).forEach(([series,obj])=>{
+
+    const miss = Object.values(obj.items).filter(v=>!v).length;
+
+    if(mode==="unowned" && miss===0) return;
+    if(mode==="complete" && miss!==0) return;
+
+    const div = document.createElement("div");
+    div.className="card";
+
+    /* 長押し */
+    div.ontouchstart = div.onmousedown = ()=>{
+      pressTimer = setTimeout(()=>{
+        selectedSeries = series;
+        document.getElementById("fileInput").click();
+      },600);
+    };
+    div.ontouchend = div.onmouseup = div.onmouseleave = ()=>{
+      clearTimeout(pressTimer);
+    };
+
+    div.innerHTML = `
+      <div style="position:relative">
+        ${obj.image ? `<img src="${obj.image}" class="thumb">` : `<div class="thumb empty"></div>`}
+        <div class="overlay">${miss===0?"🏆":""}</div>
+      </div>
+
+      <div class="name">${series}</div>
+
+      <div class="items">
+        ${itemButton("ヨリ", obj.items.ヨリ)}
+        ${itemButton("チュウ", obj.items.チュウ)}
+        ${itemButton("ヒキ", obj.items.ヒキ)}
+        ${itemButton("座り", obj.items.座り)}
+      </div>
+    `;
+
+    /* クリック処理 */
+    div.querySelectorAll(".item").forEach(el=>{
+      el.onclick = (e)=>{
+        e.stopPropagation();
+        const type = el.dataset.type;
+        data[series].items[type] = !data[series].items[type];
+        save();
+        render();
+      };
+    });
+
+    grid.appendChild(div);
+  });
 }
 
 render();
